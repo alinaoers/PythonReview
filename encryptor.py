@@ -2,32 +2,29 @@ import argparse
 import json
 import string
 
-
+ALPH_POWER = 26
 # ------------- CAESER -----------------
-def c_full_encode(word, key):
+def c_full(word, key, command) :
     alph = string.ascii_lowercase
     result = []
     for letter in word:
         if letter.isalpha():
             pos = alph.find(letter)
-            new = (pos + key) % 26
+            if (command == "encode") :
+                new = (pos + key) % ALPH_POWER
+            else :
+                new = (pos - key + ALPH_POWER) % ALPH_POWER
             result.append(alph[new])
         else:
             result.append(letter)
-    return  result
+    return result
+
+
+def c_full_encode(word, key):
+    return c_full(word, key, "encode")
 
 def c_full_decode(code, key):
-    alph = string.ascii_lowercase
-    result = []
-    for letter in code:
-        if letter.isalpha():
-            pos = alph.find(letter)
-            new = (pos - key + 26) % 26
-            result.append(alph[new])
-        else:
-            result.append(letter)
-    return  result
-
+    return c_full(code, key, "decode")
 
 def c_find_key(txt):
     alph = string.ascii_lowercase
@@ -51,7 +48,6 @@ def reg(word):
         else:
             register.append(1)
     return register
-
 
 def c_encode(word, key):
     register = reg(word)
@@ -95,7 +91,6 @@ def vig_encode_val(word):
     d = vig_dict()
     for w in range(lent):
         if not word[w].isalpha():
-            # print(word[w])
             list_code.append(word[w])
         else:
             for value in d:
@@ -122,23 +117,7 @@ def vig_comparator(value, key):
 
     return dic
 
-
-def vig_full_encode(value, key):
-    dic = vig_comparator(value, key)
-
-    lis = []
-    d = vig_dict()
-
-    for v in dic:
-        if not isinstance(dic[v], str):
-            nex = (dic[v][0] + dic[v][1]) % len(d)
-            lis.append(nex)
-        else:
-            lis.append(dic[v])
-    return lis
-
-
-def vig_full_decode(value, key):
+def vig_full(value, key, command):
     dic = vig_comparator(value, key)
 
     d = vig_dict()
@@ -146,12 +125,22 @@ def vig_full_decode(value, key):
     lis = []
     for v in dic:
         if not isinstance(dic[v], str):
-            go = (dic[v][0] - dic[v][1] + len(d)) % len(d)
+            if (command == "decode"):
+                go = (dic[v][0] - dic[v][1] + len(d)) % len(d)
+            else:
+                go = (dic[v][0] + dic[v][1]) % len(d)
             lis.append(go)
         else:
             lis.append(dic[v])
 
     return lis
+
+def vig_full_encode(value, key):
+    return vig_full(value, key, "encode")
+
+
+def vig_full_decode(value, key):
+    return vig_full(value, key, "decode")
 
 
 def vig_decode_val(list_in):
@@ -179,31 +168,27 @@ def reg(word):
             register.append(1)
     return register
 
-
-def vig_encode(word, key):
+def vig(word, key, command):
     register = reg(word)
     word = word.lower()
     key = key.lower()
 
-    res = vig_decode_val(vig_full_encode(vig_encode_val(word), vig_encode_val(key)))
+    if (command == "encode"):
+        res = vig_decode_val(vig_full_encode(vig_encode_val(word), vig_encode_val(key)))
+    else:
+        res = vig_decode_val(vig_full_decode(vig_encode_val(word), vig_encode_val(key)))
     for i in range(len(register)):
         if register[i] == 1:
             res[i] = res[i].upper()
     r = ''.join(res)
     return r
 
+def vig_encode(word, key):
+    return vig(word, key, "encode")
+
 
 def vig_decode(code, key):
-    register = reg(code)
-    code = code.lower()
-    key = key.lower()
-
-    dec_res = vig_decode_val(vig_full_decode(vig_encode_val(code), vig_encode_val(key)))
-    for i in range(len(register)):
-        if register[i] == 1:
-            dec_res[i] = dec_res[i].upper()
-    word = ''.join(dec_res)
-    return word
+    return vig(code, key, "decode")
 
 # ------------ TRAIN ------------------
 def model(text):
@@ -229,16 +214,16 @@ def find_key(text, main_model):
     main_key = 0
 
     current_model = model(text)
-    for key in range(26):
+    for key in range(ALPH_POWER):
         for letter in string.ascii_lowercase:
             results[key] += (main_model.get(letter, 0) - current_model.get(letter, 0)) ** 2
         if results[key] < results[main_key]:
             main_key = key
 
         zero = current_model[string.ascii_lowercase[0]]
-        for i in range(25):
+        for i in range(ALPH_POWER - 1):
             current_model[string.ascii_lowercase[i]] = current_model[string.ascii_lowercase[i + 1]]
-        current_model[25] = zero
+        current_model[ALPH_POWER - 1] = zero
 
     return main_key
 
@@ -248,76 +233,61 @@ def hack_code(text, model):
 
 # ------------- MAIN ------------------
 
+def Read(input_file):
+    if input_file is None:
+        text = input()
+    else:
+        text = input_file.read()
+    return text
+
+def Write(output_file, res):
+    if output_file is None:
+        print(res)
+    else:
+        output_file.write(res)
+
 def encode(args):
     if args.cipher == "caesar":
         key = int(args.key)
-        if args.input_file == None:
-            text = input()
-        else:
-            text = args.input_file.read()
+        text = Read(args.input_file)
         res = c_encode(text, key)
-        if args.output_file == None:
-            print(res)
-        else:
-            args.output_file.write(res)
+        Write(args.output_file, res)
     else:
         key = args.key
-        if args.input_file == None:
-            text = input()
-        else:
-            text = str(args.input_file.read())
+        text = str(args.input_file)
         res = vig_encode(text, key)
-        if args.output_file == None:
-            print(res)
-        else:
-            args.output_file.write(res)
+        Write(args.output_file, res)
 
 
 def decode(args):
     if args.cipher == "caesar":
         key = int(args.key)
-        if args.input_file == None:
+        if args.input_file is None:
             text = input()
         else:
             text = str(args.input_file.read())
         res = c_decode(text, key)
-        if args.output_file == None:
+        if args.output_file is None:
             print(res)
         else:
             args.output_file.write(res)
     else:
         key = args.key
-        if args.input_file == None:
-            code = input()
-        else:
-            code = args.input_file.read()
+        code = Read(args.input_file)
         res = vig_decode(code, key)
-        if args.output_file == None:
-            print(res)
-        else:
-            args.output_file.write(res)
+        Write(args.output_file, res)
 
 
 def train(args):
-    if args.text_file == None:
-        text = input()
-    else:
-        text = args.text_file.read()
-
+    text = Read(args.text_file)
     args.model_file.write(train_txt(text))
 
 
 def hack(args):
     model = json.load(args.model_file)
-    if args.input_file == None:
-        text = input()
-    else:
-        text = args.input_file.read()
+    text = Read(args.input_file)
     res = hack_code(text, model)
-    if args.output_file == None:
-        print(res)
-    else:
-        args.output_file.write(res)
+    Write(args.output_file, res)
 
 
 parser = argparse.ArgumentParser()
