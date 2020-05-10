@@ -25,19 +25,13 @@ def caesar(word, key, command) :
                 result.append(alph[new])
         else:
             result.append(letter)
-    return result
+    return ''.join(result)
 
 def caesar_encode(word, key):
-    res = caesar(word, key, "encode")
-
-    r = ''.join(res)
-    return r
+    return caesar(word, key, "encode")
 
 def caesar_decode(code, key):
-    dec_res = caesar(code, key, "decode")
-
-    dec_r = ''.join(dec_res)
-    return dec_r
+    return caesar(code, key, "decode")
 
 # ------------- VIGENERE -----------------
 
