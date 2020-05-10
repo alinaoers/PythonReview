@@ -3,23 +3,23 @@ import json
 import string
 
 ALPH_POWER = 26
-# ------------- CAESER -----------------
-def caeser_full(word, key, command) :
+# ------------- CAESAR -----------------
+def caesar(word, key, command) :
     alph = string.ascii_lowercase
     result = []
 
     for letter in word:
         if letter.isalpha():
-            up_reg = 0
+            up = False
             if letter.isupper():
-                up_reg = 1
+                up = True
             letter = letter.lower()
             pos = alph.find(letter)
             if (command == "encode") :
                 new = (pos + key) % ALPH_POWER
             else :
                 new = (pos - key + ALPH_POWER) % ALPH_POWER
-            if up_reg == 1:
+            if up:
                 result.append((alph[new]).upper())
             else :
                 result.append(alph[new])
@@ -27,113 +27,51 @@ def caeser_full(word, key, command) :
             result.append(letter)
     return result
 
-def caeser_encode(word, key):
-    res = caeser_full(word, key, "encode")
+def caesar_encode(word, key):
+    res = caesar(word, key, "encode")
 
     r = ''.join(res)
     return r
 
-def caeser_decode(code, key):
-    dec_res = caeser_full(code, key, "decode")
+def caesar_decode(code, key):
+    dec_res = caesar(code, key, "decode")
 
     dec_r = ''.join(dec_res)
     return dec_r
 
 # ------------- VIGENERE -----------------
-def vig_dict():
-    d = {}
-    for i in range(len(string.ascii_lowercase)):
-        d[i] = string.ascii_lowercase[i:i + 1]
-    return d
 
-
-def vig_encode_val(word):
-    list_code = []
-    register = []
-
-    d = vig_dict()
-    for cur_letter in word:
-        if not cur_letter.isalpha():
-            list_code.append([cur_letter, -1])
-        else:
-            if cur_letter.isupper():
-                register.append(1)
-            else:
-                register.append(0)
-            cur_letter = cur_letter.lower()
-            for value in d:
-                if cur_letter == d[value]:
-                    list_code.append(value)
-    list_code.append(register)
-
-    return list_code
-
-def vig_decode_val(list_in):
-    list_code = []
-    register = list_in[len(list_in) - 1]
-    list_in.pop(len(list_in) - 1)
-
-    d = vig_dict()
-
-    i = 0
-    for cur_letter in list_in:
-        if not isinstance(cur_letter, str):
-            for value in d:
-                if cur_letter == value:
-                    if register[i] == 1:
-                        list_code.append(d[value].upper())
-                    else:
-                        list_code.append(d[value])
-        else:
-            list_code.append(cur_letter)
-        i += 1
-
-    return list_code
-
-
-def vig_comparator(value, key):
-    len_key = len(key) - 1
-    dic = {}
-    itr = 0
-    full = 0
-    for i in value:
-        if isinstance(i, int):
-            dic[full] = [i, key[itr]]
-            full +=  1
-            itr += 1
-            if (itr >= len_key):
-                itr = 0
-        else:
-            dic[full] = i
-            full += 1
-
-    return dic
-
-def vig_full(value, key, command):
-    dic = vig_comparator(value, key)
-    d = vig_dict()
-    register = dic[len(dic) - 1]
-    dic.pop(len(dic) - 1)
-
-    res = []
-    for v in dic:
-        if not isinstance(dic[v], str):
+def vig(key, text, command):
+    result = []
+    symb = 0
+    for index, ch in enumerate(text):
+        if ch.isalpha():
+            up = False
+            if ch.isupper():
+                up = True
+                ch = ch.lower()
+            from_dict = string.ascii_lowercase.index(ch)
+            from_key = string.ascii_lowercase.index(key[(index - symb + len(key)) % len(key)])
             if (command == "decode"):
-                go = (dic[v][0] - dic[v][1] + len(d)) % len(d)
+                cur_idx = (from_dict - from_key + ALPH_POWER) % ALPH_POWER
             else:
-                go = (dic[v][0] + dic[v][1]) % len(d)
-            res.append(go)
+                cur_idx = (from_dict + from_key) % ALPH_POWER
+            if up:
+                result.append(string.ascii_lowercase[cur_idx].upper())
+            else:
+                result.append(string.ascii_lowercase[cur_idx])
         else:
-            res.append(dic[v])
-    res.append(register)
-    return res
+            symb += 1
+            result.append(ch)
+    print(result)
+    return ''.join(result)
 
-def vig(word, key, command):
-    key = key.lower()
+def vig_decode(key,text):
+    return vig(key.lower(), text, "decode")
 
-    res = vig_decode_val(vig_full(vig_encode_val(word), vig_encode_val(key), command))
-    r = ''.join(res)
-    return r
+
+def vig_encode(key, text):
+    return vig(key.lower(), text, "encode")
 
 # ------------ TRAIN ------------------
 def model(text):
@@ -155,7 +93,7 @@ def train_txt(text):
 
 # ------------ HACK --------------------
 def find_key(text, main_model):
-    results = [0 for key in range(26)]
+    results = [0 for key in range(ALPH_POWER)]
     main_key = 0
     begin = 0
 
@@ -173,7 +111,7 @@ def find_key(text, main_model):
 
 def hack_code(text, model):
     key = find_key(text, model)
-    return caeser_decode(text, key)
+    return caesar_decode(text, key)
 
 # ------------- MAIN ------------------
 
@@ -194,21 +132,22 @@ def encode(args):
     text = read(args.input_file)
     if args.cipher == "caesar":
         key = int(args.key)
-        res = caeser_encode(text, key)
+        res = caesar_encode(text, key)
     else:
         key = args.key
-        res = vig(text, key, "encode")
+        res = vig_encode(key, text)
     write(args.output_file, res)
+
 
 
 def decode(args):
     text = read(args.input_file)
     if args.cipher == "caesar":
         key = int(args.key)
-        res = caeser_decode(text, key)
+        res = caesar_decode(text, key)
     else:
         key = args.key
-        res = vig(text, key, "decode")
+        res = vig_decode(key, text)
     write(args.output_file, res)
 
 
