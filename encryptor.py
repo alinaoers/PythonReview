@@ -2,7 +2,7 @@ import argparse
 import json
 import string
 
-ALPH_POWER = 26
+ALPH_POWER = len(string.ascii_lowercase)
 # ------------- CAESAR -----------------
 def caesar(word, key, command) :
     alph = string.ascii_lowercase
@@ -87,17 +87,19 @@ def train_txt(text):
 
 # ------------ HACK --------------------
 def find_key(text, main_model):
-    results = [0 for key in range(ALPH_POWER)]
     main_key = 0
     begin = 0
-
+    min_res = ALPH_POWER
     current_model = model(text)
+
     for key in range(ALPH_POWER):
+        cur_result = 0;
         for letter in string.ascii_lowercase:
             cur_letter = string.ascii_lowercase[(string.ascii_lowercase.rfind(letter) + begin) % ALPH_POWER]
-            results[key] += (main_model.get(letter, 0) - current_model.get(cur_letter, 0)) ** 2
-        if results[key] < results[main_key]:
+            cur_result += (main_model.get(letter, 0) - current_model.get(cur_letter, 0)) ** 2
+        if cur_result < min_res:
             main_key = key
+            min_res = cur_result
 
         begin += 1
 
