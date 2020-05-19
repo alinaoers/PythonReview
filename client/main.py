@@ -2,6 +2,7 @@ import requests
 import argparse
 
 
+PORT = 8000
 WRONG_ID = -1
 DEFAULT_SUM = 0
 
@@ -9,27 +10,24 @@ DEFAULT_SUM = 0
 def create_main_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', default='localhost')
-    parser.add_argument('--port', default=8000, type=int)
+    parser.add_argument('--port', default=PORT, type=int)
 
     return  parser
 
 
 def finish():
-    ack = input('Are you sure you want to leave (YES/NO)?')
-    if ack == 'YES':
+    ask = input('Are you sure you want to leave (YES/NO)?')
+    if ask == 'YES':
         print('Goodbye!')
         exit()
-    elif ack == 'NO':
+    elif ask == 'NO':
         print('OK, let\'s continue')
     else:
-        print('Stupid input, but continue')
+        print('Incorrect input, but continue')
 
 
 def check_correct(user_input, name):
-    if name == "id":
-        def_val = WRONG_ID
-    else:
-        def_val = DEFAULT_SUM
+    def_val = (WRONG_ID if name == "id" else DEFAULT_SUM)
 
     if not user_input:
         return def_val
@@ -110,4 +108,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

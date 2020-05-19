@@ -6,7 +6,7 @@ class TestCaseCard(unittest.TestCase):
     def test_create_one(self):
         card_storage = lib.CardStorage()
         card_id = card_storage.create_card()
-        self.assertEqual(int(card_id) - 1, int(0))
+        self.assertEqual(int(card_id) - 1, 0)
 
     def test_create(self):
         card_storage = lib.CardStorage()
@@ -37,4 +37,3 @@ class TestCaseCard(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-        

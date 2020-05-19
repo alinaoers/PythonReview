@@ -11,8 +11,8 @@ card_storage = lib.CardStorage()
 
 @app.route('/create', methods=['POST'])
 def create_card():
-    sum = int(flask.request.form['sum'])
-    card_id = card_storage.create_card(sum)
+    card_sum = int(flask.request.form['sum'])
+    card_id = card_storage.create_card(card_sum)
     return str(card_id)
 
 
@@ -24,16 +24,16 @@ def get_info():
 
 @app.route('/put', methods=['POST'])
 def put():
-    sum = int(flask.request.form['sum'])
+    card_sum = int(flask.request.form['sum'])
     card_id = int(flask.request.form['id']) - 1
-    card_storage.put(card_id, sum)
+    card_storage.put(card_id, card_sum)
 
 
 @app.route('/withdraw', methods=["POST"])
 def withdraw():
-    sum = int(flask.request.form['sum'])
+    card_sum = int(flask.request.form['sum'])
     card_id = int(flask.request.form['id']) - 1
-    card_storage.withdraw(card_id, sum)
+    card_storage.withdraw(card_id, card_sum)
 
 
 def main():
@@ -42,4 +42,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

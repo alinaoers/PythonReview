@@ -1,33 +1,32 @@
 class Card:
-    def __init__(self, card_id, sum=0):
-        self.id = card_id
-        self.sum = sum
+    def __init__(self, card_id, card_sum=0):
+        self.card_id = card_id
+        self.card_sum = card_sum
 
-    def put(self, sum):
-        self.sum += sum
+    def put(self, card_sum):
+        self.card_sum += card_sum
 
     def get(self):
-        return str(self.sum)
+        return str(self.card_sum)
 
-    def withdraw(self, sum):
-        self.sum -= sum
+    def withdraw(self, card_sum):
+        self.card_sum -= card_sum
 
 
 class CardStorage:
     def __init__(self):
         self.all = []
 
-    def create_card(self, sum=0):
+    def create_card(self, card_sum=0):
         card_id = len(self.all) + 1
-        print(sum)
-        self.all.append(Card(card_id, sum))
+        self.all.append(Card(card_id, card_sum))
         return str(card_id)
 
-    def put(self, card_id, sum):
+    def put(self, card_id, card_sum):
         if card_id > len(self.all):
             print("Incorrect id")
         else:
-            self.all[card_id].put(sum)
+            self.all[card_id].put(card_sum)
 
     def get_info(self, card_id):
         if card_id > len(self.all):
@@ -35,11 +34,10 @@ class CardStorage:
         else:
             return "You have {} on card".format(str(self.all[card_id].get()))
 
-    def withdraw(self, card_id, sum):
+    def withdraw(self, card_id, card_sum):
         if card_id > len(self.all):
             print("Incorrect id")
-        elif sum > int(self.all[card_id].get()):
+        elif card_sum > int(self.all[card_id].get()):
             print("Sorry, you don't have enough money...")
         else:
-            self.all[card_id].withdraw(sum)
-                
+            self.all[card_id].withdraw(card_sum)
