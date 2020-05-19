@@ -41,3 +41,4 @@ class CardStorage:
             print("Sorry, you don't have enough money...")
         else:
             self.all[card_id].withdraw(card_sum)
+
