@@ -2,12 +2,17 @@ import requests
 import argparse
 
 
+WRONG_ID = -1
+DEFAULT_SUM = 0
+
+
 def create_main_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', default='localhost')
     parser.add_argument('--port', default=8000, type=int)
 
     return  parser
+
 
 def finish():
     ack = input('Are you sure you want to leave (YES/NO)?')
@@ -22,9 +27,9 @@ def finish():
 
 def check_correct(user_input, name):
     if name == "id":
-        def_val = -1
+        def_val = WRONG_ID
     else:
-        def_val = 0
+        def_val = DEFAULT_SUM
 
     if not user_input:
         return def_val
@@ -47,11 +52,11 @@ def ask_id():
 
 
 def correct_id():
-    id = ask_id()
-    while id == -1:
+    card_id = ask_id()
+    while card_id == WRONG_ID:
         input("Input correct id")
-        id = ask_id()
-    return id
+        card_id = ask_id()
+    return card_id
 
 
 def server(main_args):
@@ -101,7 +106,6 @@ def main():
         except KeyboardInterrupt:
             finish()
             break
-
 
 
 if __name__ == '__main__':
