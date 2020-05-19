@@ -36,7 +36,6 @@ def withdraw():
     card_storage.withdraw(card_id, sum)
 
 
-
 def main():
     app.run('::', port=PORT)
 
