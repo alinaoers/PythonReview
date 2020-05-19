@@ -20,13 +20,13 @@ class TestCaseCard(unittest.TestCase):
         print(card_id)
         card_storage.put(int(card_id) - 1, 1000)
         print(int(card_storage.all[int(card_id) - 1].get()))
-        self.assertEqual(int(card_storage.all[int(card_id) - 1].get()), int(2200))
+        self.assertEqual(int(card_storage.all[int(card_id) - 1].get()), 2200)
 
     def test_withdraw(self):
         card_storage = lib.CardStorage()
         card_id = int(card_storage.create_card(1200)) - 1
         card_storage.withdraw(card_id, 1000)
-        self.assertEqual(int(card_storage.all[card_id].get()), int(200))
+        self.assertEqual(int(card_storage.all[card_id].get()), 200)
 
     def test_get_info(self):
         card_storage = lib.CardStorage()
