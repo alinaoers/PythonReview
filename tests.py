@@ -6,7 +6,7 @@ class TestCaseCard(unittest.TestCase):
     def test_create_one(self):
         card_storage = lib.CardStorage()
         card_id = card_storage.create_card()
-        self.assertEqual(int(card_id) - 1, 0)
+        self.assertEqual(int(card_id), 0)
 
     def test_create(self):
         card_storage = lib.CardStorage()
@@ -18,20 +18,20 @@ class TestCaseCard(unittest.TestCase):
         card_storage = lib.CardStorage()
         card_id = card_storage.create_card(1200)
         print(card_id)
-        card_storage.put(int(card_id) - 1, 1000)
-        print(int(card_storage.all[int(card_id) - 1].get()))
-        self.assertEqual(int(card_storage.all[int(card_id) - 1].get()), 2200)
+        card_storage.put(int(card_id), 1000)
+        print(int(card_storage.all[int(card_id)].get()))
+        self.assertEqual(int(card_storage.all[int(card_id)].get()), 2200)
 
     def test_withdraw(self):
         card_storage = lib.CardStorage()
-        card_id = int(card_storage.create_card(1200)) - 1
+        card_id = int(card_storage.create_card(1200))
         card_storage.withdraw(card_id, 1000)
         self.assertEqual(int(card_storage.all[card_id].get()), 200)
 
     def test_get_info(self):
         card_storage = lib.CardStorage()
         card_id = card_storage.create_card(1200)
-        info = card_storage.get_info(int(card_id) - 1)
+        info = card_storage.get_info(int(card_id))
         self.assertEqual(info, "You have 1200 on card")
 
 
